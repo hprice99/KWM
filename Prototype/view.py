@@ -3,63 +3,67 @@ from tkinter import messagebox
 from tkinter import ttk
 from tkinter import filedialog
 
-def quit_app():
-    root.quit()
+class MainWindow:
+    def __init__(self):
+        self.root = Tk()
 
-def show_about(event = None):
-    messagebox.showwarning("About", "This program was made in TKinter")
+        self.mainFrame = ttk.Frame(self.root)
 
-def  start_main_window():
-    root = Tk()
+        self.mainFrame.grid(column=0, row=0, sticky=(N, W, E, S))
+        self.root.columnconfigure(0, weight=1)
+        self.root.rowconfigure(0, weight=1)
 
-    frame = Frame(root)
+        fileString = StringVar()
+        fileString.set("Select a file")
 
-    add_buttons(frame)
+        ttk.Label(self.mainFrame, text="File name").grid(row = 1, column = 1, sticky=W)
+        file_label = ttk.Label(self.mainFrame, width=50, textvariable=fileString).grid(row = 1, column = 2)
+        ttk.Button(self.mainFrame, text="Select file", command=self.select_file).grid(row = 1, column = 3, sticky=W)
 
-    print(file)
+        self.create_menu()
 
-    frame.pack()
+        self.root.mainloop()
 
-    root.mainloop()
+    def quit_app(self):
+        self.root.quit()
 
-def create_menu():
-    # Generate a menu for the program
-    the_menu = Menu(root)
+    def show_about(event=None):
+        messagebox.showwarning("About", "This program was made in TKinter")
 
-    # ---- File menu ----
-    file_menu = Menu(the_menu, tearoff=0)
+    def create_menu(self):
+        # Generate a menu for the program
+        the_menu = Menu(self.root)
 
-    file_menu.add_command(label="Open")
-    file_menu.add_separator()
-    file_menu.add_command(label="Quit", command=quit_app)
+        # ---- File menu ----
+        file_menu = Menu(the_menu, tearoff=0)
 
-    the_menu.add_cascade(label="File", menu=file_menu)
+        file_menu.add_command(label="Open")
+        file_menu.add_separator()
+        file_menu.add_command(label="Quit", command=self.quit_app)
 
-    # Generate keyboard shortcuts
-    root.bind("<Command-Q>", quit_app)
+        the_menu.add_cascade(label="File", menu=file_menu)
 
-    # ---- Help menu ----
-    help_menu = Menu(the_menu, tearoff=0)
-    help_menu.add_command(label="About", accelerator="Command-A", command=show_about)
+        # Generate keyboard shortcuts
+        self.root.bind("<Command-Q>", self.quit_app)
 
-    the_menu.add_cascade(label="Help", menu=help_menu)
+        # ---- Help menu ----
+        help_menu = Menu(the_menu, tearoff=0)
+        help_menu.add_command(label="About", accelerator="Command-A", command=self.show_about)
 
-    # Generate keyboard shortcuts
-    root.bind("<Command-A>", show_about)
-    root.bind("<Command-a>", show_about)
+        the_menu.add_cascade(label="Help", menu=help_menu)
 
-    # Add the menu to the root
-    root.configure(menu=the_menu)
+        # Generate keyboard shortcuts
+        self.root.bind("<Command-A>", self.show_about)
+        self.root.bind("<Command-a>", self.show_about)
 
-def add_buttons(frame):
-    # Select file button
-    fileButton = ttk.Button(frame, text="Important button", command=select_file)
+        # Add the menu to the root
+        self.root.configure(menu=the_menu)
 
-    fileButton['state'] = 'disabled'
-    fileButton['state'] = 'normal'
-    fileButton.pack()
+    def select_file(self):
+        filename = filedialog.askopenfilename(title="Select file",
+                                              filetypes=(("CSV files", "*.csv"), ("Excel files", "*.xlsx")))
 
-def select_file():
-    filename = filedialog.askopenfilename(title="Select file",
-                                               filetypes=(("csv files", "*.csv"), ("Excel files", "*.xlsx")))
-    return filename
+        print(filename)
+        self.fileString.set(filename)
+
+        return filename
