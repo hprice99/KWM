@@ -3,7 +3,7 @@ from tkinter import messagebox
 from tkinter import ttk
 from tkinter import filedialog
 
-class MainWindow:
+class MainWindow():
     def __init__(self):
         self.root = Tk()
 
@@ -13,11 +13,11 @@ class MainWindow:
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
 
-        fileString = StringVar()
-        fileString.set("Select a file")
+        self.fileString = StringVar()
+        self.fileString.set("Select a file")
 
         ttk.Label(self.mainFrame, text="File name").grid(row = 1, column = 1, sticky=W)
-        file_label = ttk.Label(self.mainFrame, width=50, textvariable=fileString).grid(row = 1, column = 2)
+        file_label = ttk.Label(self.mainFrame, width=50, textvariable=self.fileString).grid(row = 1, column = 2)
         ttk.Button(self.mainFrame, text="Select file", command=self.select_file).grid(row = 1, column = 3, sticky=W)
 
         self.create_menu()
@@ -59,11 +59,16 @@ class MainWindow:
         # Add the menu to the root
         self.root.configure(menu=the_menu)
 
-    def select_file(self):
+    def select_file(self, *args):
         filename = filedialog.askopenfilename(title="Select file",
                                               filetypes=(("CSV files", "*.csv"), ("Excel files", "*.xlsx")))
 
         print(filename)
         self.fileString.set(filename)
+
+        try:
+            self.fileString.set(filename)
+        except:
+            print("fileString not set")
 
         return filename
