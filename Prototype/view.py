@@ -16,7 +16,7 @@ columnCount = 3
 rowCount = 3
 
 def create_window():
-    root.geometry("900x500")
+    root.geometry("1200x500")
     root.resizable(True, True)
 
     Grid.rowconfigure(root, 0, weight=1)
@@ -27,11 +27,14 @@ def create_window():
 
     # Make grid resizable
     for row_index in range(rowCount):
-        Grid.rowconfigure(mainFrame, row_index, weight=1)
+        if row_index == 2:
+            Grid.rowconfigure(mainFrame, row_index, weight=2)
+        else:
+            Grid.rowconfigure(mainFrame, row_index, weight=1)
         for column_index in range(columnCount):
             Grid.columnconfigure(mainFrame, column_index, weight=1)
 
-    ttk.Label(mainFrame, text="File name").grid(row = 1, column = 1, sticky=W)
+    ttk.Label(mainFrame, text="File name").grid(row = 1, column = 1, sticky = W)
     file_label = ttk.Label(mainFrame, width=50, textvariable=fileString).grid(row = 1, column = 2)
     ttk.Button(mainFrame, text="Select file", command=select_file).grid(row = 1, column = 3, sticky=W)
     ttk.Button(mainFrame, text="Open file", command=create_dataframe).grid(row = 2, column = 3, sticky = W)
@@ -42,6 +45,7 @@ def create_window():
 
 def quit_app():
     root.quit()
+    root.destroy()
     exit()
 
 def show_about(event=None):
@@ -82,7 +86,27 @@ def create_dataframe():
     if fileName != "None":
         df = pd.read_csv(fileName)
         print(df)
+        show_dataframe(df)
 
+
+def show_dataframe(df):
+    # Frame for dataframe
+    dataframeFrame = ttk.Frame(root)
+    dataframeFrame.grid(column=0, row=4, sticky=(N, W, E, S))
+
+    table = ttk.Treeview(dataframeFrame)
+    table.grid(column = 1, row = 5)
+    print(tuple(df.columns.to_list()))
+    table["columns"] = tuple(df.columns.to_list())
+
+    # Do not show the 'index' column
+    table['show'] = 'headings'
+
+    row = 1
+
+    for column in df.columns.to_list():
+        table.column(column, width=100)
+        table.heading(column, text=column)
 
 def select_file(*args):
     global fileName
