@@ -5,8 +5,7 @@ import tkinter
 import view
 
 def main():
-    mainWindow = view.MainWindow()
-    print(mainWindow.fileString)
+    view.create_window()
 
 companies = pd.read_csv("fortune1000.csv", index_col = "Company")
 print(companies)

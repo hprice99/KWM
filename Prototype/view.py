@@ -2,73 +2,78 @@ from tkinter import *
 from tkinter import messagebox
 from tkinter import ttk
 from tkinter import filedialog
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
 
-class MainWindow():
-    def __init__(self):
-        self.root = Tk()
+fileName = "None"
 
-        self.mainFrame = ttk.Frame(self.root)
+root = Tk()
 
-        self.mainFrame.grid(column=0, row=0, sticky=(N, W, E, S))
-        self.root.columnconfigure(0, weight=1)
-        self.root.rowconfigure(0, weight=1)
+def create_window():
+    mainFrame = ttk.Frame(root)
 
-        self.fileString = StringVar()
-        self.fileString.set("Select a file")
+    mainFrame.grid(column=0, row=0, sticky=(N, W, E, S))
+    root.columnconfigure(0, weight=1)
+    root.rowconfigure(0, weight=1)
 
-        ttk.Label(self.mainFrame, text="File name").grid(row = 1, column = 1, sticky=W)
-        file_label = ttk.Label(self.mainFrame, width=50, textvariable=self.fileString).grid(row = 1, column = 2)
-        ttk.Button(self.mainFrame, text="Select file", command=self.select_file).grid(row = 1, column = 3, sticky=W)
+    fileString = StringVar()
 
-        self.create_menu()
+    ttk.Label(mainFrame, text="File name").grid(row = 1, column = 1, sticky=W)
+    file_label = ttk.Label(mainFrame, width=50, textvariable=fileString).grid(row = 1, column = 2)
+    ttk.Button(mainFrame, text="Select file", command=select_file).grid(row = 1, column = 3, sticky=W)
+    ttk.Button(mainFrame, text="Open file", command=create_dataframe).grid(row = 2, column = 3, sticky = W)
 
-        self.root.mainloop()
 
-    def quit_app(self):
-        self.root.quit()
+    create_menu()
 
-    def show_about(event=None):
-        messagebox.showwarning("About", "This program was made in TKinter")
+    root.mainloop()
 
-    def create_menu(self):
-        # Generate a menu for the program
-        the_menu = Menu(self.root)
+def quit_app():
+    root.quit()
 
-        # ---- File menu ----
-        file_menu = Menu(the_menu, tearoff=0)
+def show_about(event=None):
+    messagebox.showwarning("About", "This program was made in TKinter")
 
-        file_menu.add_command(label="Open")
-        file_menu.add_separator()
-        file_menu.add_command(label="Quit", command=self.quit_app)
+def create_menu():
+    # Generate a menu for the program
+    the_menu = Menu(root)
 
-        the_menu.add_cascade(label="File", menu=file_menu)
+    # ---- File menu ----
+    file_menu = Menu(the_menu, tearoff=0)
 
-        # Generate keyboard shortcuts
-        self.root.bind("<Command-Q>", self.quit_app)
+    file_menu.add_command(label="Open")
+    file_menu.add_separator()
+    file_menu.add_command(label="Quit", command=quit_app)
 
-        # ---- Help menu ----
-        help_menu = Menu(the_menu, tearoff=0)
-        help_menu.add_command(label="About", accelerator="Command-A", command=self.show_about)
+    the_menu.add_cascade(label="File", menu=file_menu)
 
-        the_menu.add_cascade(label="Help", menu=help_menu)
+    # Generate keyboard shortcuts
+    root.bind("<Command-Q>", quit_app)
 
-        # Generate keyboard shortcuts
-        self.root.bind("<Command-A>", self.show_about)
-        self.root.bind("<Command-a>", self.show_about)
+    # ---- Help menu ----
+    help_menu = Menu(the_menu, tearoff=0)
+    help_menu.add_command(label="About", accelerator="Command-A", command=show_about)
 
-        # Add the menu to the root
-        self.root.configure(menu=the_menu)
+    the_menu.add_cascade(label="Help", menu=help_menu)
 
-    def select_file(self, *args):
-        filename = filedialog.askopenfilename(title="Select file",
-                                              filetypes=(("CSV files", "*.csv"), ("Excel files", "*.xlsx")))
+    # Generate keyboard shortcuts
+    root.bind("<Command-A>", show_about)
+    root.bind("<Command-a>", show_about)
 
-        print(filename)
-        self.fileString.set(filename)
+    # Add the menu to the root
+    root.configure(menu=the_menu)
 
-        try:
-            self.fileString.set(filename)
-        except:
-            print("fileString not set")
+def create_dataframe():
+    if fileName != "None":
+        df = pd.read_csv(fileName)
+        print(df)
 
-        return filename
+
+def select_file(*args):
+    fileName = filedialog.askopenfilename(title="Select file",
+                                          filetypes=(("CSV files", "*.csv"), ("Excel files", "*.xlsx")))
+
+    print(fileName)
+
+    return fileName
