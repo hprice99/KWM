@@ -102,11 +102,15 @@ def show_dataframe(df):
     # Do not show the 'index' column
     table['show'] = 'headings'
 
-    row = 1
-
+    # Set the column headings
     for column in df.columns.to_list():
-        table.column(column, width=100)
+        table.column(column, width=200)
         table.heading(column, text=column)
+
+    # Insert the rows into the table
+    for row in range(len(df.index)):
+        table.insert("", row, text="", values=tuple(df.iloc[row].to_list()))
+
 
 def select_file(*args):
     global fileName
