@@ -10,6 +10,8 @@ fileName = "None"
 
 root = Tk()
 
+fileString = StringVar()
+
 def create_window():
     mainFrame = ttk.Frame(root)
 
@@ -17,13 +19,10 @@ def create_window():
     root.columnconfigure(0, weight=1)
     root.rowconfigure(0, weight=1)
 
-    fileString = StringVar()
-
     ttk.Label(mainFrame, text="File name").grid(row = 1, column = 1, sticky=W)
     file_label = ttk.Label(mainFrame, width=50, textvariable=fileString).grid(row = 1, column = 2)
     ttk.Button(mainFrame, text="Select file", command=select_file).grid(row = 1, column = 3, sticky=W)
     ttk.Button(mainFrame, text="Open file", command=create_dataframe).grid(row = 2, column = 3, sticky = W)
-
 
     create_menu()
 
@@ -65,15 +64,23 @@ def create_menu():
     root.configure(menu=the_menu)
 
 def create_dataframe():
+    print("Open button pressed")
+    print(fileName)
     if fileName != "None":
         df = pd.read_csv(fileName)
         print(df)
 
 
 def select_file(*args):
+    global fileName
     fileName = filedialog.askopenfilename(title="Select file",
                                           filetypes=(("CSV files", "*.csv"), ("Excel files", "*.xlsx")))
 
     print(fileName)
+
+    try:
+        fileString.set(fileName)
+    except:
+        print("fileString not set")
 
     return fileName
