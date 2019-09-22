@@ -12,12 +12,24 @@ root = Tk()
 
 fileString = StringVar()
 
-def create_window():
-    mainFrame = ttk.Frame(root)
+columnCount = 3
+rowCount = 3
 
+def create_window():
+    root.geometry("900x500")
+    root.resizable(True, True)
+
+    Grid.rowconfigure(root, 0, weight=1)
+    Grid.columnconfigure(root, 0, weight=1)
+
+    mainFrame = ttk.Frame(root)
     mainFrame.grid(column=0, row=0, sticky=(N, W, E, S))
-    root.columnconfigure(0, weight=1)
-    root.rowconfigure(0, weight=1)
+
+    # Make grid resizable
+    for row_index in range(rowCount):
+        Grid.rowconfigure(mainFrame, row_index, weight=1)
+        for column_index in range(columnCount):
+            Grid.columnconfigure(mainFrame, column_index, weight=1)
 
     ttk.Label(mainFrame, text="File name").grid(row = 1, column = 1, sticky=W)
     file_label = ttk.Label(mainFrame, width=50, textvariable=fileString).grid(row = 1, column = 2)
@@ -30,6 +42,7 @@ def create_window():
 
 def quit_app():
     root.quit()
+    exit()
 
 def show_about(event=None):
     messagebox.showwarning("About", "This program was made in TKinter")
