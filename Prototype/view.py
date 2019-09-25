@@ -102,6 +102,12 @@ def show_dataframe(df):
     # Do not show the 'index' column
     table['show'] = 'headings'
 
+    # TKinter variable to store column headings
+    independentColumn = StringVar(root)
+    dependentColumn = StringVar(root)
+    columnNames = df.columns.to_list()
+    i = 0
+
     # Set the column headings
     for column in df.columns.to_list():
         table.column(column, width=200)
@@ -110,6 +116,20 @@ def show_dataframe(df):
     # Insert the rows into the table
     for row in range(len(df.index)):
         table.insert("", row, text="", values=tuple(df.iloc[row].to_list()))
+
+    # Create a drop-down menu for the column names
+    Label(dataframeFrame, text="Choose the independent variable").grid(column=2, row = 5)
+
+    independentColumn.set(columnNames[0])
+    independentMenu = OptionMenu(dataframeFrame, independentColumn, *columnNames)
+    independentMenu.grid(column = 3, row = 5)
+
+    Label(dataframeFrame, text="Choose the dependent variable").grid(column=2, row=6)
+
+    dependentColumn.set(columnNames[1])
+    dependentMenu = OptionMenu(dataframeFrame, dependentColumn, *columnNames)
+    dependentMenu.grid(column=3, row=6)
+
 
 
 def select_file(*args):
