@@ -15,6 +15,9 @@ fileString = StringVar()
 columnCount = 3
 rowCount = 3
 
+independentColumn = StringVar(root)
+dependentColumn = StringVar(root)
+
 def create_window():
     root.geometry("1200x500")
     root.resizable(True, True)
@@ -103,8 +106,6 @@ def show_dataframe(df):
     table['show'] = 'headings'
 
     # TKinter variable to store column headings
-    independentColumn = StringVar(root)
-    dependentColumn = StringVar(root)
     columnNames = df.columns.to_list()
     i = 0
 
@@ -130,6 +131,11 @@ def show_dataframe(df):
     dependentMenu = OptionMenu(dataframeFrame, dependentColumn, *columnNames)
     dependentMenu.grid(column=3, row=6)
 
+    columnSelectButton = Button(dataframeFrame, text="Select columns", command=select_columns)
+    columnSelectButton.grid(column = 4, row = 6)
+
+def select_columns(*args):
+    print("The independent variable is " + independentColumn.get() + " and the dependent variable is " + dependentColumn.get())
 
 
 def select_file(*args):
