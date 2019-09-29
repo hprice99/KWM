@@ -9,11 +9,13 @@ import matplotlib.pyplot as plt
 fileName = "None"
 
 root = Tk()
+mainFrame = ttk.Frame(root)
 
+# String to store the path of the selected file
 fileString = StringVar()
 
-columnCount = 3
-rowCount = 3
+columnCount = 7
+rowCount = 7
 
 independentColumn = StringVar(root)
 dependentColumn = StringVar(root)
@@ -25,7 +27,6 @@ def create_window():
     Grid.rowconfigure(root, 0, weight=1)
     Grid.columnconfigure(root, 0, weight=1)
 
-    mainFrame = ttk.Frame(root)
     mainFrame.grid(column=0, row=0, sticky=(N, W, E, S))
 
     # Make grid resizable
@@ -37,10 +38,10 @@ def create_window():
         for column_index in range(columnCount):
             Grid.columnconfigure(mainFrame, column_index, weight=1)
 
-    ttk.Label(mainFrame, text="File name").grid(row = 1, column = 1, sticky = W)
-    file_label = ttk.Label(mainFrame, width=50, textvariable=fileString).grid(row = 1, column = 2)
-    ttk.Button(mainFrame, text="Select file", command=select_file).grid(row = 1, column = 3, sticky=W)
-    ttk.Button(mainFrame, text="Open file", command=create_dataframe).grid(row = 2, column = 3, sticky = W)
+    ttk.Label(mainFrame, text="File name").grid(row = 0, column = 0, sticky = W)
+    file_label = ttk.Label(mainFrame, width=50, textvariable=fileString).grid(row = 0, column = 1, columnspan = 5)
+    ttk.Button(mainFrame, text="Select file", command=select_file).grid(row = 0, column = 6, columnspan = 2, sticky=E)
+    ttk.Button(mainFrame, text="Open file", command=create_dataframe).grid(row = 1, column = 6, columnspan = 2,sticky = E)
 
     create_menu()
 
@@ -93,24 +94,20 @@ def create_dataframe():
 
 
 def show_dataframe(df):
-    # Frame for dataframe
-    dataframeFrame = ttk.Frame(root)
-    dataframeFrame.grid(column=0, row=4, sticky=(N, W, E, S))
-
-    table = ttk.Treeview(dataframeFrame)
-    table.grid(column = 1, row = 5)
+    table = ttk.Treeview(mainFrame)
+    table.grid(column = 0, row = 3, rowspan = 6, columnspan = 6, sticky = W)
     print(tuple(df.columns.to_list()))
-    table["columns"] = tuple(df.columns.to_list())
+    columnNames = df.columns.to_list()
+    table["columns"] = tuple(columnNames)
 
     # Do not show the 'index' column
     table['show'] = 'headings'
 
     # TKinter variable to store column headings
-    columnNames = df.columns.to_list()
     i = 0
 
     # Set the column headings
-    for column in df.columns.to_list():
+    for column in columnNames:
         table.column(column, width=200)
         table.heading(column, text=column)
 
@@ -119,20 +116,20 @@ def show_dataframe(df):
         table.insert("", row, text="", values=tuple(df.iloc[row].to_list()))
 
     # Create a drop-down menu for the column names
-    Label(dataframeFrame, text="Choose the independent variable").grid(column=2, row = 5)
+    Label(mainFrame, text="Choose the independent variable").grid(column=6, row = 3, sticky = W)
 
     independentColumn.set(columnNames[0])
-    independentMenu = OptionMenu(dataframeFrame, independentColumn, *columnNames)
-    independentMenu.grid(column = 3, row = 5)
+    independentMenu = OptionMenu(mainFrame, independentColumn, *columnNames)
+    independentMenu.grid(column = 7, row = 3, sticky = W)
 
-    Label(dataframeFrame, text="Choose the dependent variable").grid(column=2, row=6)
+    Label(mainFrame, text="Choose the dependent variable").grid(column=6, row=4, sticky = W)
 
     dependentColumn.set(columnNames[1])
-    dependentMenu = OptionMenu(dataframeFrame, dependentColumn, *columnNames)
-    dependentMenu.grid(column=3, row=6)
+    dependentMenu = OptionMenu(mainFrame, dependentColumn, *columnNames)
+    dependentMenu.grid(column=7, row=4, sticky = W)
 
-    columnSelectButton = Button(dataframeFrame, text="Select columns", command=select_columns)
-    columnSelectButton.grid(column = 4, row = 6)
+    columnSelectButton = Button(mainFrame, text="Select columns", command=select_columns)
+    columnSelectButton.grid(column = 7, row = 5, sticky = W)
 
 def select_columns(*args):
     print("The independent variable is " + independentColumn.get() + " and the dependent variable is " + dependentColumn.get())
