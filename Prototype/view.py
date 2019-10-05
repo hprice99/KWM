@@ -31,10 +31,7 @@ def create_window():
 
     # Make grid resizable
     for row_index in range(rowCount):
-        if row_index == 2:
-            Grid.rowconfigure(mainFrame, row_index, weight=2)
-        else:
-            Grid.rowconfigure(mainFrame, row_index, weight=1)
+        Grid.rowconfigure(mainFrame, row_index, weight=1)
         for column_index in range(columnCount):
             Grid.columnconfigure(mainFrame, column_index, weight=1)
 
@@ -95,7 +92,7 @@ def create_dataframe():
 
 def show_dataframe(df):
     table = ttk.Treeview(mainFrame)
-    table.grid(column = 0, row = 3, rowspan = 6, columnspan = 6, sticky = W)
+    table.grid(column = 0, row = 3, rowspan = 6, columnspan = 5, ipadx=5, ipady=5)
     print(tuple(df.columns.to_list()))
     columnNames = df.columns.to_list()
     table["columns"] = tuple(columnNames)
@@ -116,13 +113,13 @@ def show_dataframe(df):
         table.insert("", row, text="", values=tuple(df.iloc[row].to_list()))
 
     # Create a drop-down menu for the column names
-    Label(mainFrame, text="Choose the independent variable").grid(column=6, row = 3, sticky = W)
+    Label(mainFrame, text="Choose the independent variable").grid(column=6, row = 3, sticky = W, padx=5, pady=5)
 
     independentColumn.set(columnNames[0])
     independentMenu = OptionMenu(mainFrame, independentColumn, *columnNames)
     independentMenu.grid(column = 7, row = 3, sticky = W)
 
-    Label(mainFrame, text="Choose the dependent variable").grid(column=6, row=4, sticky = W)
+    Label(mainFrame, text="Choose the dependent variable").grid(column=6, row=4, sticky = W, padx=5, pady=5)
 
     dependentColumn.set(columnNames[1])
     dependentMenu = OptionMenu(mainFrame, dependentColumn, *columnNames)
