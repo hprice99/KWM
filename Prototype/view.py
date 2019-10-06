@@ -197,10 +197,10 @@ def select_file(*args):
     global fileName
     fileName = filedialog.askopenfilename(title="Select file", filetypes = (("Excel files", "*.xlsx"), ("All files", "*.*")))
 
-    print(fileName)
+    print((fileName[::-1].partition("/")[0])[::-1])
 
     try:
-        fileString.set(fileName)
+        fileString.set((fileName[::-1].partition("/")[0])[::-1])
     except:
         print("fileString not set")
 
