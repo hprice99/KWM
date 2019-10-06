@@ -111,7 +111,15 @@ def create_dataframe():
         global data
         data = data.append(excelDoc["USE THIS"], ignore_index = True)
         data.set_index("Client", inplace=True)
-        print(data)
+
+        data["Existing client"] = data["Existing client"].astype("int")
+        data["Value of Estate"] = round(data["Value of Estate"], 2)
+        data["Beneficiaries"] = data["Beneficiaries"].astype("int")
+        data["Multiple national jurisdictions"] = data["Multiple national jurisdictions"].astype("int")
+        data["Testementary Trust"] = data["Testementary Trust"].astype("int")
+        data["Claims expected against estate"] = data["Claims expected against estate"].astype("int")
+        data["Cost"] = round(data["Cost"], 2)
+
         show_dataframe()
         generate_model()
 
