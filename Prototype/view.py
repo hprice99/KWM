@@ -85,9 +85,12 @@ def create_dataframe():
     print("Open button pressed")
     print(fileName)
     if fileName != "None":
-        df = pd.read_csv(fileName)
-        print(df)
-        show_dataframe(df)
+        # df = pd.read_csv(fileName)
+        excelDoc = pd.read_excel(fileName, sheet_name=["USE THIS"])
+        data = excelDoc["USE THIS"]
+        data.set_index("Client", inplace=True)
+        print(data)
+        show_dataframe(data)
 
 
 def show_dataframe(df):
@@ -134,8 +137,7 @@ def select_columns(*args):
 
 def select_file(*args):
     global fileName
-    fileName = filedialog.askopenfilename(title="Select file",
-                                          filetypes=(("CSV files", "*.csv"), ("Excel files", "*.xlsx")))
+    fileName = filedialog.askopenfilename(title="Select file", filetypes = (("Excel files", "*.xlsx"), ("All files", "*.*")))
 
     print(fileName)
 
