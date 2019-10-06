@@ -38,6 +38,8 @@ cost = IntVar()
 
 # Linear model variables
 lm = linear_model.LinearRegression()
+coefficients = np.zeros(shape=(6))
+intercept = 0
 
 def create_window():
     root.geometry("1200x500")
@@ -156,7 +158,7 @@ def show_dataframe():
 
     ttk.Button(mainFrame, text="Estimate cost", command=estimate_cost).grid(row=10, column=7, sticky=W)
 
-    costField = Entry(mainFrame, textvariable = cost).grid(column=7, row = 11, sticky = W, padx = 5, pady = 5)
+    costField = Label(mainFrame, textvariable = cost).grid(column=7, row = 11, sticky = W, padx = 5, pady = 5)
 
 def generate_model():
     independentVars = data.loc[:, data.columns != 'Cost']
@@ -174,8 +176,13 @@ def generate_model():
     # Output the coefficients of the model
     print("Coefficients are", lm.coef_)
 
+    global coefficients
+    coefficients = lm.coef_
+
     # Output the intercept of the model
     print("Intercept is", lm.intercept_)
+    global intercept
+    intercept = lm.intercept_
 
 
 def select_file(*args):
@@ -192,4 +199,7 @@ def select_file(*args):
     return fileName
 
 def estimate_cost(*args):
-    print("Estimating costs now")
+    estimate = intercept + coefficients[0] * existingClient.get() + coefficients[1] * estateValue.get() + coefficients[2] * beneficiaries.get() + \
+        coefficients[3] * juristictions.get() + coefficients[4] * testementaryTrust.get() + coefficients[5] * claimsExpected.get()
+
+    cost.set(round(estimate, 2))
