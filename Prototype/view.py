@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 
 fileName = "None"
 
+data = pd.DataFrame()
+
 root = Tk()
 mainFrame = ttk.Frame(root)
 
@@ -87,17 +89,18 @@ def create_dataframe():
     if fileName != "None":
         # df = pd.read_csv(fileName)
         excelDoc = pd.read_excel(fileName, sheet_name=["USE THIS"])
-        data = excelDoc["USE THIS"]
+        global data
+        data = data.append(excelDoc["USE THIS"], ignore_index = True)
         data.set_index("Client", inplace=True)
         print(data)
-        show_dataframe(data)
+        show_dataframe()
 
 
-def show_dataframe(df):
+def show_dataframe():
     table = ttk.Treeview(mainFrame)
-    table.grid(column = 0, row = 3, rowspan = 6, columnspan = 5, ipadx=5, ipady=5)
-    print(tuple(df.columns.to_list()))
-    columnNames = df.columns.to_list()
+    table.grid(column = 0, row = 3, rowspan = data.shape[1], columnspan = 6, ipadx=5, ipady=5)
+    print(tuple(data.columns.to_list()))
+    columnNames = data.columns.to_list()
     table["columns"] = tuple(columnNames)
 
     # Do not show the 'index' column
@@ -108,28 +111,20 @@ def show_dataframe(df):
 
     # Set the column headings
     for column in columnNames:
-        table.column(column, width=200)
+        table.column(column, width=100)
         table.heading(column, text=column)
 
     # Insert the rows into the table
-    for row in range(len(df.index)):
-        table.insert("", row, text="", values=tuple(df.iloc[row].to_list()))
+    for row in range(len(data.index)):
+        table.insert("", row, text="", values=tuple(data.iloc[row].to_list()))
 
-    # Create a drop-down menu for the column names
-    Label(mainFrame, text="Choose the independent variable").grid(column=6, row = 3, sticky = W, padx=5, pady=5)
+    # Create a list of the variables involved
+    Label(mainFrame, text="Variables", font = 'Arial 14 bold').grid(column=6, row = 3, sticky = W, padx=5, pady=5)
 
-    independentColumn.set(columnNames[0])
-    independentMenu = OptionMenu(mainFrame, independentColumn, *columnNames)
-    independentMenu.grid(column = 7, row = 3, sticky = W)
-
-    Label(mainFrame, text="Choose the dependent variable").grid(column=6, row=4, sticky = W, padx=5, pady=5)
-
-    dependentColumn.set(columnNames[1])
-    dependentMenu = OptionMenu(mainFrame, dependentColumn, *columnNames)
-    dependentMenu.grid(column=7, row=4, sticky = W)
-
-    columnSelectButton = Button(mainFrame, text="Select columns", command=select_columns)
-    columnSelectButton.grid(column = 7, row = 5, sticky = W)
+    i = 0
+    for column in columnNames:
+        Label(mainFrame, text = column).grid(column=6, row = 4 + i, sticky = W, padx = 5, pady = 5)
+        i = i + 1
 
 def select_columns(*args):
     print("The independent variable is " + independentColumn.get() + " and the dependent variable is " + dependentColumn.get())
