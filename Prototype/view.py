@@ -5,22 +5,39 @@ from tkinter import filedialog
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.pyplot import figure
 
+from sklearn import linear_model
+from sklearn import datasets
+
+
+# File name to load the DataFrame
 fileName = "None"
 
+# Empty DataFrame to store the loaded data
 data = pd.DataFrame()
 
+# TKinter frame
 root = Tk()
 mainFrame = ttk.Frame(root)
 
 # String to store the path of the selected file
 fileString = StringVar()
 
-columnCount = 7
-rowCount = 7
+columnCount = 8
+rowCount = 8
 
-independentColumn = StringVar(root)
-dependentColumn = StringVar(root)
+# Variables to store variables from DataFrame
+existingClient = IntVar()
+estateValue = IntVar()
+beneficiaries = IntVar()
+juristictions = IntVar()
+testementaryTrust  = IntVar()
+claimsExpected = IntVar()
+cost = IntVar()
+
+# Linear model variables
+lm = linear_model.LinearRegression()
 
 def create_window():
     root.geometry("1200x500")
@@ -94,6 +111,7 @@ def create_dataframe():
         data.set_index("Client", inplace=True)
         print(data)
         show_dataframe()
+        generate_model()
 
 
 def show_dataframe():
@@ -123,11 +141,41 @@ def show_dataframe():
 
     i = 0
     for column in columnNames:
-        Label(mainFrame, text = column).grid(column=6, row = 4 + i, sticky = W, padx = 5, pady = 5)
+        if(column == "Cost"):
+            Label(mainFrame, text=column).grid(column=6, row=4 + i + 1, sticky=W, padx=5, pady=5)
+        else:
+            Label(mainFrame, text = column).grid(column=6, row = 4 + i, sticky = W, padx = 5, pady = 5)
         i = i + 1
 
-def select_columns(*args):
-    print("The independent variable is " + independentColumn.get() + " and the dependent variable is " + dependentColumn.get())
+    existingClientField = Entry(mainFrame, textvariable = existingClient).grid(column=7, row = 4, sticky = W, padx = 5, pady = 5)
+    estateValueField = Entry(mainFrame, textvariable = estateValue).grid(column=7, row = 5, sticky = W, padx = 5, pady = 5)
+    beneficiariesField = Entry(mainFrame, textvariable = beneficiaries).grid(column=7, row = 6, sticky = W, padx = 5, pady = 5)
+    juristictionsField = Entry(mainFrame, textvariable = juristictions).grid(column=7, row = 7, sticky = W, padx = 5, pady = 5)
+    testementaryTrustField = Entry(mainFrame, textvariable = testementaryTrust).grid(column=7, row = 8, sticky = W, padx = 5, pady = 5)
+    claimsExpectedField = Entry(mainFrame, textvariable = claimsExpected).grid(column=7, row = 9, sticky = W, padx = 5, pady = 5)
+
+    ttk.Button(mainFrame, text="Estimate cost", command=estimate_cost).grid(row=10, column=7, sticky=W)
+
+    costField = Entry(mainFrame, textvariable = cost).grid(column=7, row = 11, sticky = W, padx = 5, pady = 5)
+
+def generate_model():
+    independentVars = data.loc[:, data.columns != 'Cost']
+    dependentVar = data["Cost"]
+
+    # Fit a model
+    model = lm.fit(independentVars, dependentVar)
+
+    predictions = lm.predict(independentVars)
+    print(predictions[0:5])
+
+    # Find the R^2 score of the model
+    print("R^2 =", lm.score(independentVars, dependentVar))
+
+    # Output the coefficients of the model
+    print("Coefficients are", lm.coef_)
+
+    # Output the intercept of the model
+    print("Intercept is", lm.intercept_)
 
 
 def select_file(*args):
@@ -142,3 +190,6 @@ def select_file(*args):
         print("fileString not set")
 
     return fileName
+
+def estimate_cost(*args):
+    print("Estimating costs now")
