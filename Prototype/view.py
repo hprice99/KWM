@@ -45,6 +45,7 @@ intercept = 0
 def create_window():
     root.geometry("1700x500")
     root.resizable(True, True)
+    root.title("Case Cost Predictor")
 
     Grid.rowconfigure(root, 0, weight=1)
     Grid.columnconfigure(root, 0, weight=1)
