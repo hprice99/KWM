@@ -5,23 +5,45 @@ from tkinter import filedialog
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.pyplot import figure
+import textwrap
 
+from sklearn import linear_model
+from sklearn import datasets
+
+
+# File name to load the DataFrame
 fileName = "None"
 
+# Empty DataFrame to store the loaded data
+data = pd.DataFrame()
+
+# TKinter frame
 root = Tk()
 mainFrame = ttk.Frame(root)
 
 # String to store the path of the selected file
 fileString = StringVar()
 
-columnCount = 7
-rowCount = 7
+columnCount = 8
+rowCount = 8
 
-independentColumn = StringVar(root)
-dependentColumn = StringVar(root)
+# Variables to store variables from DataFrame
+existingClient = IntVar()
+estateValue = IntVar()
+beneficiaries = IntVar()
+juristictions = IntVar()
+testementaryTrust  = IntVar()
+claimsExpected = IntVar()
+cost = IntVar()
+
+# Linear model variables
+lm = linear_model.LinearRegression()
+coefficients = np.zeros(shape=(6))
+intercept = 0
 
 def create_window():
-    root.geometry("1200x500")
+    root.geometry("1700x500")
     root.resizable(True, True)
 
     Grid.rowconfigure(root, 0, weight=1)
@@ -85,16 +107,29 @@ def create_dataframe():
     print("Open button pressed")
     print(fileName)
     if fileName != "None":
-        df = pd.read_csv(fileName)
-        print(df)
-        show_dataframe(df)
+        # df = pd.read_csv(fileName)
+        excelDoc = pd.read_excel(fileName, sheet_name=["USE THIS"])
+        global data
+        data = data.append(excelDoc["USE THIS"], ignore_index = True)
+        data.set_index("Client", inplace=True)
+
+        data["Existing client"] = data["Existing client"].astype("int")
+        data["Value of Estate"] = round(data["Value of Estate"], 2)
+        data["Beneficiaries"] = data["Beneficiaries"].astype("int")
+        data["Multiple national jurisdictions"] = data["Multiple national jurisdictions"].astype("int")
+        data["Testementary Trust"] = data["Testementary Trust"].astype("int")
+        data["Claims expected against estate"] = data["Claims expected against estate"].astype("int")
+        data["Cost"] = round(data["Cost"], 2)
+
+        show_dataframe()
+        generate_model()
 
 
-def show_dataframe(df):
+def show_dataframe():
     table = ttk.Treeview(mainFrame)
-    table.grid(column = 0, row = 3, rowspan = 6, columnspan = 5, ipadx=5, ipady=5)
-    print(tuple(df.columns.to_list()))
-    columnNames = df.columns.to_list()
+    table.grid(column = 0, row = 3, rowspan = data.shape[1], columnspan = 6, ipadx=5, ipady=5)
+    print(tuple(data.columns.to_list()))
+    columnNames = data.columns.to_list()
     table["columns"] = tuple(columnNames)
 
     # Do not show the 'index' column
@@ -103,45 +138,92 @@ def show_dataframe(df):
     # TKinter variable to store column headings
     i = 0
 
+    style = ttk.Style(root)
+    # style.configure('Treeview', headingheight=45)
+
+
     # Set the column headings
     for column in columnNames:
-        table.column(column, width=200)
+        if(column == "Cost"):
+            table.column(column, width=150)
+        else:
+            table.column(column, width=len(column)*7)
         table.heading(column, text=column)
 
     # Insert the rows into the table
-    for row in range(len(df.index)):
-        table.insert("", row, text="", values=tuple(df.iloc[row].to_list()))
+    for row in range(len(data.index)):
+        table.insert("", row, text="", values=tuple(data.iloc[row].to_list()))
 
-    # Create a drop-down menu for the column names
-    Label(mainFrame, text="Choose the independent variable").grid(column=6, row = 3, sticky = W, padx=5, pady=5)
+    """ treeXScroll = ttk.Scrollbar(root, orient=HORIZONTAL, command = table.xview)
+    treeXScroll.grid(column = 0, row = 4 + data.shape[1])
 
-    independentColumn.set(columnNames[0])
-    independentMenu = OptionMenu(mainFrame, independentColumn, *columnNames)
-    independentMenu.grid(column = 7, row = 3, sticky = W)
+    table.configure(xscrollcommand=treeXScroll.set) """
 
-    Label(mainFrame, text="Choose the dependent variable").grid(column=6, row=4, sticky = W, padx=5, pady=5)
+    # Create a list of the variables involved
+    Label(mainFrame, text="Variables", font = 'Arial 14 bold').grid(column=6, row = 3, sticky = W, padx=5, pady=5)
 
-    dependentColumn.set(columnNames[1])
-    dependentMenu = OptionMenu(mainFrame, dependentColumn, *columnNames)
-    dependentMenu.grid(column=7, row=4, sticky = W)
+    i = 0
+    for column in columnNames:
+        if(column == "Cost"):
+            Label(mainFrame, text=column).grid(column=6, row=4 + i + 1, sticky=W, padx=5, pady=5)
+        else:
+            Label(mainFrame, text = column).grid(column=6, row = 4 + i, sticky = W, padx = 5, pady = 5)
+        i = i + 1
 
-    columnSelectButton = Button(mainFrame, text="Select columns", command=select_columns)
-    columnSelectButton.grid(column = 7, row = 5, sticky = W)
+    existingClientField = Entry(mainFrame, textvariable = existingClient).grid(column=7, row = 4, sticky = W, padx = 5, pady = 5)
+    estateValueField = Entry(mainFrame, textvariable = estateValue).grid(column=7, row = 5, sticky = W, padx = 5, pady = 5)
+    beneficiariesField = Entry(mainFrame, textvariable = beneficiaries).grid(column=7, row = 6, sticky = W, padx = 5, pady = 5)
+    juristictionsField = Entry(mainFrame, textvariable = juristictions).grid(column=7, row = 7, sticky = W, padx = 5, pady = 5)
+    testementaryTrustField = Entry(mainFrame, textvariable = testementaryTrust).grid(column=7, row = 8, sticky = W, padx = 5, pady = 5)
+    claimsExpectedField = Entry(mainFrame, textvariable = claimsExpected).grid(column=7, row = 9, sticky = W, padx = 5, pady = 5)
 
-def select_columns(*args):
-    print("The independent variable is " + independentColumn.get() + " and the dependent variable is " + dependentColumn.get())
+    ttk.Button(mainFrame, text="Estimate cost", command=estimate_cost).grid(row=10, column=7, sticky=W)
+
+    costField = Label(mainFrame, textvariable = cost).grid(column=7, row = 11, sticky = W, padx = 5, pady = 5)
+
+def generate_model():
+    independentVars = data.loc[:, data.columns != 'Cost']
+    dependentVar = data["Cost"]
+
+    # Fit a model
+    model = lm.fit(independentVars, dependentVar)
+
+    predictions = lm.predict(independentVars)
+    print(predictions[0:5])
+
+    # Find the R^2 score of the model
+    print("R^2 =", lm.score(independentVars, dependentVar))
+
+    # Output the coefficients of the model
+    print("Coefficients are", lm.coef_)
+
+    global coefficients
+    coefficients = lm.coef_
+
+    # Output the intercept of the model
+    print("Intercept is", lm.intercept_)
+    global intercept
+    intercept = lm.intercept_
 
 
 def select_file(*args):
     global fileName
-    fileName = filedialog.askopenfilename(title="Select file",
-                                          filetypes=(("CSV files", "*.csv"), ("Excel files", "*.xlsx")))
+    fileName = filedialog.askopenfilename(title="Select file", filetypes = (("Excel files", "*.xlsx"), ("All files", "*.*")))
 
-    print(fileName)
+    print((fileName[::-1].partition("/")[0])[::-1])
 
     try:
-        fileString.set(fileName)
+        fileString.set((fileName[::-1].partition("/")[0])[::-1])
     except:
         print("fileString not set")
 
     return fileName
+
+def estimate_cost(*args):
+    estimate = intercept + coefficients[0] * existingClient.get() + coefficients[1] * estateValue.get() + coefficients[2] * beneficiaries.get() + \
+        coefficients[3] * juristictions.get() + coefficients[4] * testementaryTrust.get() + coefficients[5] * claimsExpected.get()
+
+    cost.set(round(estimate, 2))
+
+def wrap(string, length=10):
+    return '\n'.join(textwrap.wrap(string, length))
