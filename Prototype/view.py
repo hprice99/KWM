@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import figure
+import textwrap
 
 from sklearn import linear_model
 from sklearn import datasets
@@ -42,7 +43,7 @@ coefficients = np.zeros(shape=(6))
 intercept = 0
 
 def create_window():
-    root.geometry("1200x500")
+    root.geometry("1700x500")
     root.resizable(True, True)
 
     Grid.rowconfigure(root, 0, weight=1)
@@ -137,14 +138,26 @@ def show_dataframe():
     # TKinter variable to store column headings
     i = 0
 
+    style = ttk.Style(root)
+    # style.configure('Treeview', headingheight=45)
+
+
     # Set the column headings
     for column in columnNames:
-        table.column(column, width=100)
+        if(column == "Cost"):
+            table.column(column, width=150)
+        else:
+            table.column(column, width=len(column)*7)
         table.heading(column, text=column)
 
     # Insert the rows into the table
     for row in range(len(data.index)):
         table.insert("", row, text="", values=tuple(data.iloc[row].to_list()))
+
+    """ treeXScroll = ttk.Scrollbar(root, orient=HORIZONTAL, command = table.xview)
+    treeXScroll.grid(column = 0, row = 4 + data.shape[1])
+
+    table.configure(xscrollcommand=treeXScroll.set) """
 
     # Create a list of the variables involved
     Label(mainFrame, text="Variables", font = 'Arial 14 bold').grid(column=6, row = 3, sticky = W, padx=5, pady=5)
@@ -211,3 +224,6 @@ def estimate_cost(*args):
         coefficients[3] * juristictions.get() + coefficients[4] * testementaryTrust.get() + coefficients[5] * claimsExpected.get()
 
     cost.set(round(estimate, 2))
+
+def wrap(string, length=10):
+    return '\n'.join(textwrap.wrap(string, length))
